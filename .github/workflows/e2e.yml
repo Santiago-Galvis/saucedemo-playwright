@@ -11,6 +11,12 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  # Carpeta fija en el disco del runner (persiste entre runs, fuera del workspace
+  # que actions/checkout limpia en cada job).
+  HISTORY_DIR: /home/ubuntu/pages-history
+  MAX_RUNS: 5
+
 jobs:
   e2e:
     runs-on: self-hosted
@@ -24,9 +30,10 @@ jobs:
 
       - run: npm ci
 
-      - run: npx playwright install --with-deps
-
-      - run: npx playwright test
+      - name: Run Playwright tests
+        id: test
+        run: npx playwright test
+        continue-on-error: true
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -35,10 +42,40 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+      - name: Archive run into history and build dashboard
+        if: always()
+        run: |
+          set -e
+          RUN_DIR="$HISTORY_DIR/runs/${{ github.run_number }}-$(date +%Y%m%d-%H%M%S)"
+          mkdir -p "$RUN_DIR"
+          cp -r playwright-report/* "$RUN_DIR/"
+
+          # Rotación: conserva solo los MAX_RUNS más recientes, borra el resto
+          cd "$HISTORY_DIR/runs"
+          ls -1dt */ | tail -n +$((MAX_RUNS + 1)) | xargs -r rm -rf
+
+          # Regenera el index.html del dashboard con el histórico restante
+          {
+            echo "<!doctype html><html><head><meta charset='utf-8'>"
+            echo "<title>saucedemo-playwright — Test Runs</title>"
+            echo "<style>body{font-family:system-ui;max-width:640px;margin:40px auto;padding:0 16px}"
+            echo "li{margin:8px 0}a{text-decoration:none;color:#0969da}.ok{color:#1a7f37}.fail{color:#cf222e}</style>"
+            echo "</head><body><h1>saucedemo-playwright — últimas corridas</h1><ul>"
+            for dir in $(ls -1dt */); do
+              name="${dir%/}"
+              echo "<li><a href=\"$name/index.html\">$name</a></li>"
+            done
+            echo "</ul></body></html>"
+          } > "$HISTORY_DIR/index.html"
+
       - uses: actions/upload-pages-artifact@v3
         if: always()
         with:
-          path: playwright-report/
+          path: /home/ubuntu/pages-history
+
+      - name: Fail job if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
 
   deploy-pages:
     needs: e2e
