@@ -49,6 +49,7 @@ jobs:
           RUN_DIR="$HISTORY_DIR/runs/${{ github.run_number }}-$(date +%Y%m%d-%H%M%S)"
           mkdir -p "$RUN_DIR"
           cp -r playwright-report/* "$RUN_DIR/"
+          echo "${{ steps.test.outcome }}" > "$RUN_DIR/.status"
 
           # Rotación: conserva solo los MAX_RUNS más recientes, borra el resto
           cd "$HISTORY_DIR/runs"
@@ -58,12 +59,28 @@ jobs:
           {
             echo "<!doctype html><html><head><meta charset='utf-8'>"
             echo "<title>saucedemo-playwright — Test Runs</title>"
-            echo "<style>body{font-family:system-ui;max-width:640px;margin:40px auto;padding:0 16px}"
-            echo "li{margin:8px 0}a{text-decoration:none;color:#0969da}.ok{color:#1a7f37}.fail{color:#cf222e}</style>"
+            echo "<style>"
+            echo "body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:48px auto;padding:0 16px;color:#1f2328;background:#fff}"
+            echo "h1{font-size:1.4rem;margin-bottom:24px}"
+            echo "ul{list-style:none;padding:0}"
+            echo "li{margin:0 0 12px}"
+            echo "a{display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:#1f2328;border:1px solid #d1d9e0;border-radius:8px;padding:14px 18px;transition:background .15s}"
+            echo "a:hover{background:#f6f8fa}"
+            echo ".badge{font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:999px}"
+            echo ".ok{background:#dafbe1;color:#1a7f37}.fail{background:#ffebe9;color:#cf222e}"
+            echo "</style>"
             echo "</head><body><h1>saucedemo-playwright — últimas corridas</h1><ul>"
             for dir in $(ls -1dt */); do
               name="${dir%/}"
-              echo "<li><a href=\"$name/index.html\">$name</a></li>"
+              if [ "$(cat "$name/.status" 2>/dev/null)" = "failure" ]; then
+                badge="<span class=\"badge fail\">failed</span>"
+              else
+                badge="<span class=\"badge ok\">passed</span>"
+              fi
+              run_number="${name%%-*}"
+              ts="${name#*-}"
+              date_fmt="${ts:0:4}-${ts:4:2}-${ts:6:2} ${ts:9:2}:${ts:11:2}:${ts:13:2}"
+              echo "<li><a href=\"runs/$name/index.html\"><span>Run #$run_number — $date_fmt</span>$badge</a></li>"
             done
             echo "</ul></body></html>"
           } > "$HISTORY_DIR/index.html"
