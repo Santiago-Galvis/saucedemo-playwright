@@ -1,5 +1,6 @@
 import { test } from "../../src/fixtures";
 import { PASSWORD, USERS } from "../../src/data/users";
+import { ROUTES } from "../../src/constants";
 
 /**
  * Cubre los 5 casos definidos como prioritarios en TEST_CASES.md
@@ -106,5 +107,34 @@ test.describe("Login", () => {
     await loginPage.submitWithEnter();
     await loginPage.expectLoggedIn();
   });
-  
+
+  test("13. should log in only the users allowed to log in", async ({ loginPage }) => {
+    for (const { username, canLogin, expectedError } of USERS) {
+      await loginPage.goto();
+      await loginPage.  login(username, PASSWORD);
+
+      if (canLogin) {
+        await loginPage.expectLoggedIn();
+      } else {
+        if (!expectedError) throw new Error(`${username} fixture data is missing expectedError`);
+        await loginPage.expectError(`Epic sadface: ${expectedError}`);
+      }
+    }
+  });
+
+  test("14. should redirect to login when accessing inventory without authentication", async ({ loginPage }) => {
+    await loginPage.gotoWithoutLogin(ROUTES.INVENTORY);
+    await loginPage.expectError("Epic sadface: You can only access '/inventory.html' when you are logged in.");
+  });
+
+  test("15. should redirect to login when accessing protected pages without authentication", async ({ loginPage }) => {
+    await loginPage.gotoWithoutLogin(ROUTES.CART);
+    await loginPage.expectError("Epic sadface: You can only access '/cart.html' when you are logged in.");
+
+    await loginPage.gotoWithoutLogin(ROUTES.CHECKOUT_STEP_ONE);
+    await loginPage.expectError("Epic sadface: You can only access '/checkout-step-one.html' when you are logged in.");
+
+    await loginPage.gotoWithoutLogin(ROUTES.CHECKOUT_STEP_TWO);
+    await loginPage.expectError("Epic sadface: You can only access '/checkout-step-two.html' when you are logged in.");
+  });
 });

@@ -7,6 +7,10 @@ export class LoginPage extends BasePage {
     await this.navigate(ROUTES.LOGIN);
   }
 
+  async gotoWithoutLogin(route: string): Promise<void> {
+    await this.navigate(route);
+  }
+
   async fillCredentials(username: string, password: string): Promise<void> {
     await this.page.getByTestId(SELECTORS.login.input_username).fill(username);
     await this.page.getByTestId(SELECTORS.login.input_password).fill(password);
