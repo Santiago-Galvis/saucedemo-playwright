@@ -1,5 +1,9 @@
 # Proyecto: claude-pw-saucedemo
 
+## Idioma
+
+Todas las respuestas de Claude en este proyecto deben ser en español.
+
 ## Contexto general
 
 Proyecto de **práctica** con Playwright + TypeScript contra `https://www.saucedemo.com/`.
@@ -87,6 +91,24 @@ if (actualBehavior !== expectedBehavior) {
 Regla general: `expect` para el flujo feliz (standard_user); `test.info().annotations`
 para documentar bugs conocidos de los usuarios especiales — no marques el test como
 fallido por un bug que el sitio tiene a propósito, documéntalo.
+
+### Web-first assertions (auto-retry)
+
+No todos los matchers de `expect` reintentan: los que reciben un `Locator`/`Page`/`Response`
+sí (hacen polling hasta el timeout de `expect.timeout`, 5s por default de Playwright — no
+está sobreescrito en `playwright.config.ts`); los que operan sobre un valor plano ya resuelto
+(`toEqual`, `toBe`, `toContain`) son síncronos, sin retry. Pista rápida: si hacés
+`await expect(locator).toX()` sobre el locator directo (no sobre un valor ya extraído con
+`await locator.algo()`), es web-first.
+
+Los que vamos a usar en este proyecto:
+`toBeVisible` / `toBeHidden`, `toBeEnabled` / `toBeDisabled`, `toBeChecked`, `toBeEditable`,
+`toBeFocused`, `toHaveAttribute`, `toHaveClass`, `toHaveCSS`, `toHaveCount`,
+`toHaveText` / `toContainText`, `toHaveValue` / `toHaveValues`, `toHaveURL` (sobre `Page`),
+`toHaveTitle` (sobre `Page`).
+
+Por eso en `BasePage.expectAttribute()` no hace falta leer el atributo a mano antes del
+`expect` para "asegurar" el valor — `toHaveAttribute` ya reintenta solo.
 
 ## Decisiones técnicas del proyecto
 

@@ -7,10 +7,18 @@ export class LoginPage extends BasePage {
     await this.navigate(ROUTES.LOGIN);
   }
 
-  async login(username: string, password: string): Promise<void> {
+  async fillCredentials(username: string, password: string): Promise<void> {
     await this.page.getByTestId(SELECTORS.login.input_username).fill(username);
     await this.page.getByTestId(SELECTORS.login.input_password).fill(password);
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    await this.fillCredentials(username, password);
     await this.page.getByTestId(SELECTORS.login.btn_login).click();
+  }
+
+  async submitWithEnter(): Promise<void> {
+    await this.page.getByTestId(SELECTORS.login.input_password).press("Enter");
   }
 
   async expectLoggedIn(): Promise<void> {
@@ -21,11 +29,25 @@ export class LoginPage extends BasePage {
     await expect(this.page.getByTestId(SELECTORS.login.msg_error), `Error esperado: "${message}"`).toHaveText(message);
   }
 
+  async expectDismissButton(dismiss?: boolean): Promise<void> {
+    await expect(
+      this.page.getByTestId(SELECTORS.login.btn_closeError),
+      "Botón de cerrar error debería estar visible",
+    ).toBeVisible();
+
+    if (dismiss) {
+      await this.dismissError();
+    }
+  }
   async dismissError(): Promise<void> {
     await this.page.getByTestId(SELECTORS.login.btn_closeError).click();
   }
 
   async expectNoError(): Promise<void> {
     await expect(this.page.getByTestId(SELECTORS.login.msg_error)).not.toBeVisible();
+  }
+
+  async expectPasswordMasked(): Promise<void> {
+    await this.expectAttribute(this.page.getByTestId(SELECTORS.login.input_password), "type", "password");
   }
 }

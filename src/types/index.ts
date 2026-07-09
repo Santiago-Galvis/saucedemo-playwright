@@ -7,12 +7,7 @@
 
 /** Los 6 usuarios de prueba que ofrece saucedemo.com */
 export type SauceUser =
-  | "standard_user"
-  | "locked_out_user"
-  | "problem_user"
-  | "performance_glitch_user"
-  | "error_user"
-  | "visual_user";
+  "standard_user" | "locked_out_user" | "problem_user" | "performance_glitch_user" | "error_user" | "visual_user";
 
 /** Criterios de orden del dropdown de inventario */
 export type SortOption = "az" | "za" | "lohi" | "hilo";

@@ -17,7 +17,10 @@ export abstract class BasePage {
   }
 
   async navigate(path: string): Promise<void> {
-    await this.page.goto(path, { waitUntil: "domcontentloaded", timeout: TIMEOUTS.LONG });
+    await this.page.goto(path, {
+      waitUntil: "domcontentloaded",
+      timeout: TIMEOUTS.LONG,
+    });
   }
 
   protected getFirst(selector: string): Locator {
@@ -44,5 +47,14 @@ export abstract class BasePage {
   /** Assertion bloqueante reutilizable: falla si el locator con ese texto no aparece. */
   async expectVisibleText(locator: Locator, text: string): Promise<void> {
     await expect(locator, `Se esperaba el texto "${text}"`).toHaveText(text);
+  }
+
+  /** Assertion bloqueante reutilizable: falla si el atributo del locator no tiene el valor esperado. */
+  async expectAttribute(locator: Locator, attribute: string, expected: string): Promise<void> {
+    const actual = await locator.getAttribute(attribute);
+    await expect(locator, `Se esperaba atributo "${attribute}"="${expected}" pero era "${actual}"`).toHaveAttribute(
+      attribute,
+      expected,
+    );
   }
 }
