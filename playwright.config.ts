@@ -14,8 +14,7 @@ export default defineConfig({
   fullyParallel: true, // corre tests en paralelo
   forbidOnly: !!process.env.CI, // en CI, falla el build si hay .only
   retries: process.env.CI ? 2 : 0, // reintentos automáticos en CI
-  workers: process.env.CI ? 6 : undefined, // número de workers paralelos; VM self-hosted tiene 4 OCPU (ver CLAUDE.md), probamos 6 para ver cómo se comporta
-
+  workers: process.env.CI ? 4 : 16, // CI: coincide 1:1 con los 4 OCPU de la VM self-hosted (ver CLAUDE.md); local: 1
   reporter: [
     ["html", { outputFolder: "playwright-report", open: "never" }], // reporte visual
     ["list"], // output en consola
