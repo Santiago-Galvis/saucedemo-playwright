@@ -21,6 +21,15 @@ jobs:
   e2e:
     runs-on: self-hosted
     steps:
+      - name: Show runner capacity
+        run: |
+          echo "## Cores"
+          nproc
+          echo "## RAM"
+          free -h
+          echo "## Disco"
+          df -h /
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
