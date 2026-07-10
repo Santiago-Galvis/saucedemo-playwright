@@ -12,6 +12,10 @@
  * `testIdAttribute: "data-test"` en playwright.config.ts.
  */
 
+// Sesión guardada por tests/setup/auth.setup.ts (standard_user), reusada por los tests
+// que no son de LoginPage para saltarse el login (ver SESSION-01 en TEST_CASES.md).
+export const AUTH_FILE = "playwright/.auth/standard_user.json";
+
 export const ROUTES = {
   LOGIN: "/",
   INVENTORY: "/inventory.html",
@@ -36,6 +40,13 @@ export const SELECTORS = {
     btn_login: "login-button",
     msg_error: "error",
     btn_closeError: "error-button",
+  },
+  inventory: {
+    div_inventoryItem: "inventory-item",
+    lbl_inventoryItemName: "inventory-item-name",
+    lbl_inventoryItemDescription: "inventory-item-desc",
+    lbl_inventoryItemPrice: "inventory-item-price",
+    role_addToCartButton: "Add to cart",
   },
   global: {
     icon_cartBadge: "shopping-cart-badge",
