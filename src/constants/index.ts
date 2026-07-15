@@ -25,6 +25,14 @@ export const ROUTES = {
   CHECKOUT_COMPLETE: "/checkout-complete.html",
 } as const;
 
+// Valores del atributo `value` de las <option> del dropdown de sort (product-sort-container).
+export const SORT_OPTIONS = {
+  NAME_ASC: "az",
+  NAME_DESC: "za",
+  PRICE_ASC: "lohi",
+  PRICE_DESC: "hilo",
+} as const;
+
 export const TIMEOUTS = {
   SHORT: 3_000,
   DEFAULT: 15_000,
@@ -42,11 +50,16 @@ export const SELECTORS = {
     btn_closeError: "error-button",
   },
   inventory: {
+    div_header: "primary-header",
+    lbl_headerTitle: "Swag Labs",
+    btn_hamburgerMenu: "#react-burger-menu-btn",
+    btn_shoppingCart: "shopping-cart-link",
     div_inventoryItem: "inventory-item",
     lbl_inventoryItemName: "inventory-item-name",
     lbl_inventoryItemDescription: "inventory-item-desc",
     lbl_inventoryItemPrice: "inventory-item-price",
     role_addToCartButton: "Add to cart",
+    dropdown_sort: "product-sort-container",
   },
   global: {
     icon_cartBadge: "shopping-cart-badge",

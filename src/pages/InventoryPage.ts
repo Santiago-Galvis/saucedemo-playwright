@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { SELECTORS, ROUTES } from "../constants";
+import { SELECTORS, ROUTES, SORT_OPTIONS } from "../constants";
 
 export class InventoryPage extends BasePage {
   async goToInventory(): Promise<void> {
@@ -18,5 +18,52 @@ export class InventoryPage extends BasePage {
       await expect(product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }),).toBeVisible();
       await expect(product.getByRole("img")).toHaveAttribute("src", /.+/);
     }
+  }
+
+  async checkTitleAndLogoOnHeader(): Promise<void> {
+    await expect(this.page.getByTestId(SELECTORS.inventory.div_header)).toBeVisible();
+    await expect(this.page.getByText(SELECTORS.inventory.lbl_headerTitle)).toBeVisible();
+    await expect(this.page.locator(SELECTORS.inventory.btn_hamburgerMenu)).toBeVisible();
+    await expect(this.page.getByTestId(SELECTORS.inventory.btn_shoppingCart)).toBeVisible();
+  }
+
+  async checkDefaultSortIsNameAscending(): Promise<void> {
+
+    await expect(this.page.getByTestId(SELECTORS.inventory.dropdown_sort)).toHaveValue(SORT_OPTIONS.NAME_ASC);
+
+    const productNames = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).allTextContents();
+    const sortedNames = [...productNames].sort((a, b) => a.localeCompare(b));
+
+    expect(productNames).toEqual(sortedNames);
+  }
+
+  async sortBy(option: string): Promise<void> {
+    await this.page.getByTestId(SELECTORS.inventory.dropdown_sort).selectOption(option);
+  }
+
+  async checkSortIsNameDescending(): Promise<void> {
+    const productNames = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).allTextContents();
+    const sortedNames = [...productNames].sort((a, b) => b.localeCompare(a));
+
+    expect(productNames).toEqual(sortedNames);
+  }
+
+  async checkSortIsPriceAscending(): Promise<void> {
+    const prices = await this.getProductPrices();
+    const sortedPrices = [...prices].sort((a, b) => a - b);
+
+    expect(prices).toEqual(sortedPrices);
+  }
+
+  private async getProductPrices(): Promise<number[]> {
+    const priceTexts = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).allTextContents();
+    return priceTexts.map((price) => Number(price.replace("$", "")));
+  }
+
+  async checkSortIsPriceDescending(): Promise<void> {
+    const prices = await this.getProductPrices();
+    const sortedPrices = [...prices].sort((a, b) => b - a);
+
+    expect(prices).toEqual(sortedPrices);
   }
 }
