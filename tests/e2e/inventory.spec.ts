@@ -40,4 +40,11 @@ test.describe("Inventory", () => {
     await inventoryPage.sortBy(SORT_OPTIONS.PRICE_DESC);
     await inventoryPage.checkSortIsPriceDescending();
   });
+
+  test("7. should add a product to the cart when clicking Add to cart", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addProductToCartByName("Sauce Labs Backpack");
+  });
+
+  
 });

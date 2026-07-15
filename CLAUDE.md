@@ -48,6 +48,28 @@ msg_      → mensajes error     icon_     → íconos con assertion
 chk_      → checkboxes         modal_    → contenedores modal
 ```
 
+### `.filter()` sobre locators — para escoger un item dentro de una lista
+
+Útil cuando necesitás encontrar un elemento específico dentro de un grupo repetido
+(ej. un producto puntual dentro de todos los `inventory-item`), en vez de iterar con
+`.all()` o depender de índice. Opciones (combinables entre sí):
+
+- **`has`**: `Locator` — el elemento debe contener un descendiente que matchee ese locator.
+  Permite exact match si el locator interno lo pide (ej. `getByText(x, { exact: true })`).
+- **`hasNot`**: `Locator` — inverso de `has`.
+- **`hasText`**: `string | RegExp` — el elemento (o un descendiente) debe contener ese texto.
+  Match por substring/regex, no exacto por defecto — más simple que `has` + `getByText`
+  cuando no importa el exact match.
+- **`hasNotText`**: `string | RegExp` — inverso de `hasText`.
+- **`visible`**: `boolean` — filtra por si el elemento está visible o no.
+
+Ejemplo real en `InventoryPage.addProductToCartByName()`:
+```typescript
+this.page
+  .getByTestId(SELECTORS.inventory.div_inventoryItem)
+  .filter({ has: this.page.getByText(productName, { exact: true }) });
+```
+
 ## Convenciones de Page Objects
 
 - Métodos = acciones de usuario: `login()` ✅ — `fillUsernameInput()` ❌

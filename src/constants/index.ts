@@ -59,6 +59,7 @@ export const SELECTORS = {
     lbl_inventoryItemDescription: "inventory-item-desc",
     lbl_inventoryItemPrice: "inventory-item-price",
     role_addToCartButton: "Add to cart",
+    role_removeButton: "Remove",
     dropdown_sort: "product-sort-container",
   },
   global: {
