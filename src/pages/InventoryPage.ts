@@ -67,7 +67,7 @@ export class InventoryPage extends BasePage {
     expect(prices).toEqual(sortedPrices);
   }
 
-  async addProductToCartByName(productName: string): Promise<void> {
+  async addProductToCartByNameAndCheckRemoveButton(productName: string): Promise<void> {
     const product = this.page
       .getByTestId(SELECTORS.inventory.div_inventoryItem)
       .filter({ has: this.page.getByText(productName, { exact: true }) });
@@ -76,8 +76,12 @@ export class InventoryPage extends BasePage {
     await expect(product.getByRole("button", { name: SELECTORS.inventory.role_removeButton })).toBeVisible();
     await expect(product.getByRole("button", { name: SELECTORS.inventory.role_removeButton })).toHaveCSS("color", "rgb(226, 35, 26)");
     await expect(product.getByRole("button", { name: SELECTORS.inventory.role_removeButton })).toHaveCSS("border", "1px solid rgb(226, 35, 26)");
+  }
 
+  async getCartItemCount(expectedCount: number): Promise<void> {
+    const itemCount = await this.page.getByTestId(SELECTORS.inventory.btn_shoppingCart).textContent();
 
+    expect(itemCount).toBe(expectedCount.toString)
   }
 
   

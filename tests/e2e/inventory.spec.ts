@@ -43,7 +43,7 @@ test.describe("Inventory", () => {
 
   test("7. should add a product to the cart when clicking Add to cart", async ({ inventoryPage }) => {
     await inventoryPage.goToInventory();
-    await inventoryPage.addProductToCartByName("Sauce Labs Backpack");
+    await inventoryPage.addProductToCartByNameAndCheckRemoveButton("Sauce Labs Backpack");
   });
 
   
