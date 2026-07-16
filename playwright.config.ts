@@ -26,6 +26,7 @@ export default defineConfig({
     screenshot: "only-on-failure", // captura screenshot solo si el test falla
     video: "retain-on-failure", // graba video, lo borra si el test pasa
     trace: "on-first-retry", // captura trace en el primer reintento
+    // launchOptions: { slowMo: 500 },
   },
 
   // projects: cada entrada es un "browser profile" corrido en paralelo

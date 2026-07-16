@@ -14,11 +14,7 @@ export interface UserCase {
 
 export const USERS: UserCase[] = [
   { username: "standard_user", canLogin: true },
-  {
-    username: "locked_out_user",
-    canLogin: false,
-    expectedError: "Sorry, this user has been locked out.",
-  },
+  { username: "locked_out_user", canLogin: false, expectedError: "Sorry, this user has been locked out.",},
   { username: "problem_user", canLogin: true },
   { username: "performance_glitch_user", canLogin: true },
   { username: "error_user", canLogin: true },

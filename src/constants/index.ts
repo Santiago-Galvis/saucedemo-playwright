@@ -54,6 +54,7 @@ export const SELECTORS = {
     lbl_headerTitle: "Swag Labs",
     btn_hamburgerMenu: "#react-burger-menu-btn",
     btn_shoppingCart: "shopping-cart-link",
+    span_cartBadge: "shopping-cart-badge",
     div_inventoryItem: "inventory-item",
     lbl_inventoryItemName: "inventory-item-name",
     lbl_inventoryItemDescription: "inventory-item-desc",

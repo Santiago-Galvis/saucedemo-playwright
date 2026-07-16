@@ -43,8 +43,55 @@ test.describe("Inventory", () => {
 
   test("7. should add a product to the cart when clicking Add to cart", async ({ inventoryPage }) => {
     await inventoryPage.goToInventory();
-    await inventoryPage.addProductToCartByNameAndCheckRemoveButton("Sauce Labs Backpack");
+    await inventoryPage.addProductToCartByName("Sauce Labs Backpack");
+    await inventoryPage.checkRemoveButtonForProduct("Sauce Labs Backpack");
+    await inventoryPage.getAndValidateCartItemCount(1);
   });
 
+  test("8. should update the cart badge when adding multiple products", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
+  });
   
+  test("9. should remove a product from the cart when clicking Remove", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
+    await inventoryPage.removeProductFromCartByName("Sauce Labs Fleece Jacket");
+    await inventoryPage.checkAddButtonForProduct("Sauce Labs Fleece Jacket")
+    await inventoryPage.getAndValidateCartItemCount(5);
+  });
+
+  test("10. should hide the cart badge when removing the last product", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addProductToCartByName("Sauce Labs Backpack");
+    await inventoryPage.getAndValidateCartItemCount(1);
+    await inventoryPage.removeProductFromCartByName("Sauce Labs Backpack");
+    await inventoryPage.getAndValidateCartItemCount(0);
+  });
+
+  test("11. should add all 6 products to the cart", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.checkAllProductsShowRemoveButton();
+  });
+
+  test("12. should show the Add to cart button for all products after removing them", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
+    await inventoryPage.sortBy(SORT_OPTIONS.PRICE_DESC);
+    await inventoryPage.getAndValidateCartItemCount(6)
+  });
+
+  test("13. should preserve cart state after reloading the page", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addProductToCartByName("Sauce Labs Onesie");
+    await inventoryPage.getAndValidateCartItemCount(1);
+    await inventoryPage.reload();
+    await inventoryPage.getAndValidateCartItemCount(1);
+  });
+
+  test("14. should load a valid and unique image for each product", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.checkAllProductImagesAreValidAndUnique();
+  });
+
 });

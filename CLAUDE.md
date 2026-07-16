@@ -95,6 +95,122 @@ que sí sirvieron en Avianca — impleméntalos ahí cuando aparezca el caso rea
 - **`count() === 0` para elementos opcionales** — mismo motivo que Avianca: `locator()`
   nunca es null, `count()` nunca lanza error
 
+### `.length` vs `.count()`
+
+- **`.length`** — propiedad síncrona de un array ya resuelto (ej. tras `await locator.all()`).
+  No vuelve a consultar el DOM; úsalo si ya tenés el array porque vas a iterar cada elemento.
+- **`.count()`** — método async de `Locator` que consulta el DOM en el momento de la llamada,
+  sin necesitar `.all()` antes. Preferilo cuando solo necesitás el número, sin iterar.
+
+### Cuándo resolver `.all()` — en la declaración vs. en el loop
+
+No es una cuestión de timing (la diferencia real de milisegundos es irrelevante): es de
+flexibilidad de la variable.
+
+```typescript
+// Opción A — allProducts queda como Locator (lazy), resuelto recién en el for
+const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+for (const product of await allProducts.all()) { ... }
+
+// Opción B — allProducts se resuelve a Locator[] ya en la declaración
+const allProducts = await this.page.getByTestId(SELECTORS.inventory.div_inventoryItem).all();
+```
+
+Usá la **Opción A** si en la misma función necesitás otras operaciones de `Locator` sobre
+el mismo grupo antes o después del loop (ej. `await expect(allProducts).toHaveCount(6)`,
+como en `checkInventoryDisplayedItems`) — perderías esa variable si ya la resolviste a array.
+
+Usá la **Opción B** si el único uso es iterar (ej. `addAllProductsToCartAndCheckCartBadge`) —
+más simple, sin necesidad de mantener el `Locator` original.
+
+## Estructuras de datos en JS/TS — Array, Tuple, Set, Map
+
+### Array — lista ordenada, permite duplicados
+
+Todos estos métodos **mutan el array original in-place** (no crean uno nuevo) — ninguno
+"reemplaza", cada uno inserta o elimina en un extremo (o en una posición con `splice`):
+
+```typescript
+const names: string[] = ["Backpack", "Bike Light"];
+
+names.push("Onesie");
+// inserta "Onesie" al final → names queda: ["Backpack", "Bike Light", "Onesie"]
+// retorna el nuevo length del array (3), no el elemento insertado
+
+const removed = names.pop();
+// elimina el último elemento → names queda: ["Backpack", "Bike Light"]
+// retorna el elemento eliminado → removed = "Onesie"
+
+names.unshift("Fleece");
+// inserta "Fleece" al inicio → names queda: ["Fleece", "Backpack", "Bike Light"]
+
+const removedFirst = names.shift();
+// elimina el primer elemento → names queda: ["Backpack", "Bike Light"]
+// retorna el elemento eliminado → removedFirst = "Fleece"
+
+names.splice(1, 1);
+// elimina 1 elemento a partir del índice 1 (remove por posición)
+// si names era ["Backpack", "Bike Light"], queda: ["Backpack"]
+
+const idx = names.indexOf("Bike Light");
+if (idx !== -1) names.splice(idx, 1); // remove por valor (no hay .remove() nativo en Array)
+
+names.includes("Backpack");   // true/false — no muta, solo consulta
+names.length;                 // tamaño actual — propiedad, no método
+```
+
+Particularidad: acepta duplicados y mantiene orden de inserción. Es la estructura por
+defecto para casi todo en este proyecto (ej. `productNames`, `imageSrcs`).
+
+### Tuple — array de tamaño y tipos fijos (solo existe a nivel de tipo en TS)
+
+```typescript
+const point: [number, number] = [10, 20];
+const userEntry: [string, boolean] = ["standard_user", true];
+```
+
+En runtime es un array común de JS (no hay diferencia de comportamiento) — la tupla es
+una anotación de **TypeScript** que fija cantidad y tipo por posición, TS marca error si
+hacés `point.push(30)` sin declarar esa posición extra en el tipo. Útil cuando el orden y
+la cantidad de valores importan (ej. un par `[label, value]`), no lo usamos aún en este
+proyecto pero puede aparecer al tipar retornos con múltiples valores.
+
+### Set — solo valores únicos, sin índices
+
+```typescript
+const uniqueSrcs = new Set(imageSrcs); // constructor recibe cualquier iterable (array, etc.)
+
+uniqueSrcs.add("nueva-img.jpg");   // agrega (ignora si ya existe, sin error)
+uniqueSrcs.delete("nueva-img.jpg"); // remove por valor directo
+uniqueSrcs.has("a.jpg");           // true/false — más rápido que Array.includes en sets grandes
+uniqueSrcs.size;                   // cantidad de elementos (no `.length`, eso es de Array)
+[...uniqueSrcs];                   // convertir de vuelta a array si hace falta iterar con índice
+```
+
+Particularidad clave: al construirlo con `new Set(array)`, cualquier duplicado del array
+de origen se colapsa automáticamente — por eso `new Set(imageSrcs).size !== imageSrcs.length`
+es la forma idiomática de detectar duplicados (ver `checkAllProductImagesAreValidAndUnique`).
+No tiene orden por índice ni `.push()`/`.pop()` — sus métodos son `.add()` / `.delete()` / `.has()`.
+
+### Map — pares clave-valor, cualquier tipo como clave
+
+```typescript
+const pricesByName = new Map<string, number>();
+
+pricesByName.set("Backpack", 29.99);  // agrega o actualiza (push/update es el mismo método)
+pricesByName.get("Backpack");          // 29.99, o undefined si no existe
+pricesByName.delete("Backpack");       // remove por clave
+pricesByName.has("Backpack");          // true/false
+pricesByName.size;                     // cantidad de pares
+for (const [name, price] of pricesByName) { ... } // iterar pares
+```
+
+Particularidad: a diferencia de un objeto plano `{}`, las claves pueden ser de cualquier
+tipo (no solo string), mantiene orden de inserción, y `.size` es una propiedad (no método,
+a diferencia de `.has()`/`.get()`). No lo usamos todavía en este proyecto, pero sería la
+opción natural si necesitáramos, por ejemplo, mapear nombre de producto → precio para
+validar sin recorrer el array cada vez.
+
 ## Convenciones de assertions
 
 Idénticas a Avianca — usar siempre la API idiomática de Playwright, nunca `if + throw`:

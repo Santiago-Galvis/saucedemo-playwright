@@ -57,4 +57,8 @@ export abstract class BasePage {
       expected,
     );
   }
+
+  async reload(): Promise<void> {
+    await this.page.reload();
+  }
 }
