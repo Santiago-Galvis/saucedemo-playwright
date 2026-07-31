@@ -1,6 +1,9 @@
 import { expect, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { SELECTORS, ROUTES, SORT_OPTIONS } from "../constants";
+import { PRODUCT_CATALOG } from "../data/products"
+
+import type { ProductInfo } from "../types";
 
 export class InventoryPage extends BasePage {
   async goToInventory(): Promise<void> {
@@ -71,6 +74,22 @@ export class InventoryPage extends BasePage {
     return this.page
       .getByTestId(SELECTORS.inventory.div_inventoryItem)
       .filter({ has: this.page.getByText(productName, { exact: true }) });
+  }
+
+  async getProductInfo(productName: string): Promise<ProductInfo> {
+    const product = this.getProductByName(productName);
+
+    return {
+      name: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).textContent()) ?? "",
+      description: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemDescription).textContent()) ?? "",
+      price: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).textContent()) ?? "",
+      imageSrc: (await product.getByRole("img").getAttribute("src")) ?? "",
+    };
+  }
+
+  async clickProductName(productName: string): Promise<void> {
+    const product = this.getProductByName(productName);
+    await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).click();
   }
 
   async addProductToCartByName(productName: string): Promise<void> {
@@ -147,6 +166,19 @@ export class InventoryPage extends BasePage {
     await expect(addButton).toBeVisible();
     await expect(addButton).toHaveCSS("color", "rgb(19, 35, 34)");
     await expect(addButton).toHaveCSS("border", "1px solid rgb(19, 35, 34)");
+  }
+
+  async checkPricesForAllProducts(): Promise<void> {
+    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+
+    for (const product of await allProducts.all()) {
+      const productName = await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).textContent();
+      const productPrice = await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).textContent();
+
+      const expectedPrice = PRODUCT_CATALOG.get(productName ?? "");
+      expect(expectedPrice, `"${productName}" no está en PRODUCT_CATALOG`).toBeDefined();
+      expect(productPrice).toBe(`$${expectedPrice}`);
+    }
   }
   
 }

@@ -18,3 +18,11 @@ export interface CheckoutInfo {
   lastName: string;
   postalCode: string;
 }
+
+/** Datos visibles de un producto (inventory card o product detail) para comparar entre páginas */
+export interface ProductInfo {
+  name: string;
+  description: string;
+  price: string;
+  imageSrc: string;
+}

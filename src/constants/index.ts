@@ -63,6 +63,10 @@ export const SELECTORS = {
     role_removeButton: "Remove",
     dropdown_sort: "product-sort-container",
   },
+  productDetail: {
+    btn_backToProducts: "back-to-products",
+    img_inventoryItem: "item-sauce-labs-backpack-img",
+  },
   global: {
     icon_cartBadge: "shopping-cart-badge",
     btn_cart: "shopping-cart-link",

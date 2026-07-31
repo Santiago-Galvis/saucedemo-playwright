@@ -94,4 +94,10 @@ test.describe("Inventory", () => {
     await inventoryPage.checkAllProductImagesAreValidAndUnique();
   });
 
+  test("15. should show the expected price for each product", async ({ inventoryPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.checkPricesForAllProducts();
+    
+  });
+
 });

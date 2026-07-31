@@ -1,5 +1,8 @@
 # CI/CD con self-hosted runner en OCI (guía)
 
+> Guía paso a paso **original**. Para el estado actual del pipeline (fuente de verdad,
+> puede diferir en detalles) ver `docs/CI_CD.md`.
+
 ## Tu máquina: ¿es buena para esto?
 
 `VM.Standard.A1.Flex` — 4 OCPU, 24 GB RAM, ARM (Ampere), disco por block storage,

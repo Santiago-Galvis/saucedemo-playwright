@@ -17,25 +17,30 @@ Fuente: experiencia real construyendo `InventoryPage` + docs oficiales.
 
 ### `.filter()` sobre locators — escoger un item dentro de una lista
 
+Útil para encontrar un elemento específico dentro de un grupo repetido (ej. un
+producto puntual dentro de todos los `inventory-item`), en vez de iterar con `.all()`
+o depender de índice.
+
 ```typescript
 this.page
   .getByTestId(SELECTORS.inventory.div_inventoryItem)
   .filter({ has: this.page.getByText(productName, { exact: true }) });
 ```
 
-Opciones (combinables):
-- **`has`**: `Locator` — debe contener un descendiente que matchee ese locator. Permite
-  exact match (`getByText(x, { exact: true })`).
-- **`hasNot`**: inverso de `has`.
-- **`hasText`**: `string | RegExp` — más simple que `has` + `getByText` cuando solo
-  importa el texto (substring, no exacto por defecto).
-- **`hasNotText`**: inverso de `hasText`.
-- **`visible`**: `boolean`.
+Opciones (combinables entre sí):
+- **`has`**: `Locator` — el elemento debe contener un descendiente que matchee ese
+  locator. Permite exact match si el locator interno lo pide (`getByText(x, { exact: true })`).
+- **`hasNot`**: `Locator` — inverso de `has`.
+- **`hasText`**: `string | RegExp` — el elemento (o un descendiente) debe contener ese
+  texto. Match por substring/regex, no exacto por defecto — más simple que `has` +
+  `getByText` cuando no importa el exact match.
+- **`hasNotText`**: `string | RegExp` — inverso de `hasText`.
+- **`visible`**: `boolean` — filtra por si el elemento está visible o no.
 
-`has: getByText(x, { exact: true })` vs `hasText: x` dan el mismo resultado con
-`exact: false`/default — la diferencia real es exact vs substring, no el método en sí.
-Preferir exact match cuando nombres de productos podrían ser substring uno del otro
-(ej. "Sauce Labs Bike Light" vs un futuro "Sauce Labs Bike Light Pro").
+`has: getByText(x, { exact: true })` vs `hasText: x` dan resultados distintos: el
+primero exige match exacto, el segundo hace substring por default. Preferir exact match
+cuando nombres de productos podrían ser substring uno del otro (ej. "Sauce Labs Bike
+Light" vs un futuro "Sauce Labs Bike Light Pro").
 
 ---
 
@@ -199,25 +204,60 @@ garantía cross-browser. Si falla sin motivo aparente en firefox/webkit, usar
 
 #### Texto
 ```typescript
-await expect(locator).toHaveText("exacto");
-await expect(locator).toContainText("parcial");
-expect(string).toContain("parcial");   // sin await, sobre valor ya resuelto
+await expect(locator).toHaveText("exacto");           // texto completo, exact match
+await expect(locator).toHaveText(/regex/);             // match por regex
+await expect(locator).toHaveText(["a", "b"]);          // sobre una lista de locators, uno por elemento
+await expect(locator).toContainText("parcial");        // substring, no exact
+expect(string).toBe("exacto");         // valor ya resuelto (ej. tras textContent()) — sin await, ===
+expect(string).toContain("parcial");   // valor ya resuelto — substring
+```
+`toHaveText` vs `toContainText`: mismo criterio exact/substring que `has`/`hasText` en
+`.filter()` — usar `toHaveText` cuando el copy completo es estable y conocido, `toContainText`
+cuando solo te importa una parte (ej. un mensaje con datos dinámicos alrededor).
+
+#### Negación — `.not`
+Cualquier matcher admite `.not` antes para invertir la condición, sigue siendo web-first
+(reintenta hasta que la condición negada se cumpla):
+```typescript
+await expect(locator).not.toBeVisible();
+await expect(locator).not.toHaveText("texto viejo");
+await expect(locator).not.toHaveClass(/disabled/);
 ```
 
 #### Atributos y accesibilidad
 ```typescript
 await expect(locator).toHaveAttribute("src", /.+/);   // existe y no está vacío
+await expect(locator).toHaveAttribute("src", "exact.jpg"); // valor exacto del atributo
 await expect(locator).toHaveValue("az");              // valor de un <select>/<input>
+await expect(locator).toHaveValues(["az", "lohi"]);   // <select multiple>
 await expect(locator).toHaveAccessibleName("Remove");
+await expect(locator).toHaveClass(/active/);          // por substring/regex sobre className
 await expect(locator).toHaveCount(6);
 ```
 
-#### Valores ya resueltos (sin `await` en el expect)
+#### Estado del elemento
 ```typescript
-expect(valor).toBe(esperado);          // igualdad estricta (===)
-expect(valor).toEqual([...]);          // igualdad profunda (arrays/objetos)
-expect(numero).toBeGreaterThan(0);
+await expect(locator).toBeVisible();   // renderizado y con tamaño > 0 (no visibility:hidden/display:none)
+await expect(locator).toBeHidden();    // inverso — o no existe en el DOM, o está oculto
+await expect(locator).toBeEnabled();   // no tiene el atributo disabled
+await expect(locator).toBeDisabled();
+await expect(locator).toBeChecked();   // checkbox/radio
+await expect(locator).toBeEditable();  // no readonly, no disabled
+await expect(locator).toBeFocused();
 ```
+
+#### Valores ya resueltos (sin `await` en el `expect`, salvo que la extracción del dato sí lo tenga)
+```typescript
+expect(valor).toBe(esperado);          // igualdad estricta (===) — primitivos
+expect(valor).toEqual([...]);          // igualdad profunda (arrays/objetos anidados)
+expect(valor).not.toEqual([...]);      // negación también aplica acá
+expect(numero).toBeGreaterThan(0);
+expect(numero).toBeLessThanOrEqual(10);
+expect(array).toHaveLength(6);         // length de un array ya resuelto (no confundir con toHaveCount, que es de Locator)
+```
+`toBe` vs `toEqual`: `toBe` es `===` (referencia/valor primitivo) — falla comparando dos
+arrays u objetos distintos aunque tengan el mismo contenido. `toEqual` compara estructura
+recursivamente — es la que necesitás para arrays/objetos (ej. `expect(productNames).toEqual(sortedNames)`).
 
 ---
 
