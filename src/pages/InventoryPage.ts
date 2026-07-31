@@ -123,9 +123,11 @@ export class InventoryPage extends BasePage {
 
   async addAllProductsToCartAndCheckCartBadge(): Promise<void> {
     const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    await expect(allProducts).toHaveCount(6);
 
     for (const product of await allProducts.all()) {
-      await product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton}).click();
+      await product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }).click();
+      await expect(product.getByRole("button", { name: SELECTORS.inventory.role_removeButton })).toBeVisible();
     }
 
     await this.getAndValidateCartItemCount(await allProducts.count());

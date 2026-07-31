@@ -89,6 +89,12 @@ Convención del proyecto: usar `.filter()` en vez de iterar con `.all()` o depen
 - Sin `page.pause()` commiteado (ESLint lo bloquea)
 - Sin `console.log` en tests
 
+## Ejecutar tests
+
+Los tests pueden correr con hasta `--workers=16` en paralelo (ej.
+`npx playwright test --workers=16`) — útil para verificar rápido después de un ajuste,
+
+
 ## BasePage — qué hay y qué falta a propósito
 
 `BasePage.ts` arranca mínimo (`navigate`, `getFirst`/`clickFirst`, `waitForVisible`,

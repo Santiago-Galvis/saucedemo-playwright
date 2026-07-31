@@ -10,7 +10,7 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: "./tests", // carpeta donde viven los tests
-  timeout: 120_000, // timeout máximo por test
+  timeout: 20_000, // timeout máximo por test
   fullyParallel: true, // corre tests en paralelo
   forbidOnly: !!process.env.CI, // en CI, falla el build si hay .only
   retries: process.env.CI ? 2 : 0, // reintentos automáticos en CI

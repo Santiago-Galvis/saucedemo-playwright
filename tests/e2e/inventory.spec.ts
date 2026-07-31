@@ -71,6 +71,7 @@ test.describe("Inventory", () => {
 
   test("11. should add all 6 products to the cart", async ({ inventoryPage }) => {
     await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
     await inventoryPage.checkAllProductsShowRemoveButton();
   });
 
