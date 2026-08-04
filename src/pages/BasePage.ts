@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect } from "@playwright/test";
-import { TIMEOUTS } from "../constants";
+import { TIMEOUTS, SELECTORS } from "../constants";
 
 /**
  * BasePage — utilidades transversales heredadas por todos los Page Objects.
@@ -25,6 +25,12 @@ export abstract class BasePage {
 
   protected getFirst(selector: string): Locator {
     return this.page.locator(selector).first();
+  }
+
+  protected getProductByName(productName: string): Locator {
+    return this.page
+      .getByTestId(SELECTORS.sharedItemFields.div_inventoryItem)
+      .filter({ has: this.page.getByText(productName, { exact: true }) });
   }
 
   async clickFirst(selector: string): Promise<void> {
@@ -60,5 +66,9 @@ export abstract class BasePage {
 
   async reload(): Promise<void> {
     await this.page.reload();
+  }
+
+  async checkForRedirection(expectedUrl: string | RegExp): Promise<void> {
+    await expect(this.page, `Se esperaba redirección a "${expectedUrl}"`).toHaveURL(expectedUrl);
   }
 }

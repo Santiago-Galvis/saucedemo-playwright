@@ -1,5 +1,5 @@
 import { test as base } from "@playwright/test";
-import { InventoryPage, LoginPage, ProductDetailPage } from "../pages";
+import { InventoryPage, LoginPage, ProductDetailPage, CartPage} from "../pages";
 
 /**
  * Custom Fixtures — cada página ya instanciada y lista para usar en los tests.
@@ -12,6 +12,7 @@ type PageFixtures = {
   loginPage: LoginPage;
   inventoryPage: InventoryPage;
   productDetailPage: ProductDetailPage;
+  cartPage: CartPage
 };
 
 export const test = base.extend<PageFixtures>({
@@ -23,6 +24,9 @@ export const test = base.extend<PageFixtures>({
   },
   productDetailPage: async ({ page }, use) => {
     await use(new ProductDetailPage(page));
+  },
+  cartPage: async ({ page }, use) => {
+    await use(new CartPage(page));
   },
 });
 

@@ -95,10 +95,10 @@ ver CLAUDE.md) para usar directo en `test("...")`.
   → `test("should remove the product from the cart from the detail page", ...)`
 - **PDP-05** — Botón "Back to products". → Vuelve a inventory, carrito intacto.
   → `test("should return to inventory when clicking Back to products", ...)`
-- **PDP-06** — Datos del detalle coinciden con los de la card de inventory. → Valores idénticos.
-  → `test("should show the same product data as the inventory card", ...)`
-- **PDP-07** — URL de detalle con id inválido (ej. `?id=999`). → "ITEM NOT FOUND", sin crash.
+- **PDP-06** — URL de detalle con id inválido (ej. `?id=999`). → "ITEM NOT FOUND", sin crash.
   → `test("should show ITEM NOT FOUND for an invalid product id", ...)`
+- **PDP-07** — Datos del detalle coinciden con los de la card de inventory (cubierto ya por PDP-01, que hace `checkMatchesProduct`). → Valores idénticos.
+  → cubierto por PDP-01, no necesita test propio.
 - **PDP-08** — Agregar desde inventory, abrir detalle. → Detalle muestra "Remove" (estado sincronizado).
   → `test("should sync cart state when opening detail after adding from inventory", ...)`
 

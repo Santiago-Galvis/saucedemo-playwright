@@ -49,16 +49,18 @@ export const SELECTORS = {
     msg_error: "error",
     btn_closeError: "error-button",
   },
+  sharedItemFields: {
+    div_inventoryItem: "inventory-item",
+    lbl_inventoryItemName: "inventory-item-name",
+    lbl_inventoryItemDescription: "inventory-item-desc",
+    lbl_inventoryItemPrice: "inventory-item-price",
+  },
   inventory: {
     div_header: "primary-header",
     lbl_headerTitle: "Swag Labs",
     btn_hamburgerMenu: "#react-burger-menu-btn",
     btn_shoppingCart: "shopping-cart-link",
     span_cartBadge: "shopping-cart-badge",
-    div_inventoryItem: "inventory-item",
-    lbl_inventoryItemName: "inventory-item-name",
-    lbl_inventoryItemDescription: "inventory-item-desc",
-    lbl_inventoryItemPrice: "inventory-item-price",
     role_addToCartButton: "Add to cart",
     role_removeButton: "Remove",
     dropdown_sort: "product-sort-container",
@@ -66,6 +68,9 @@ export const SELECTORS = {
   productDetail: {
     btn_backToProducts: "back-to-products",
     img_inventoryItem: "item-sauce-labs-backpack-img",
+  },
+  cart : {
+    input_quantityProduct: "item-quantity",
   },
   global: {
     icon_cartBadge: "shopping-cart-badge",

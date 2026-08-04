@@ -11,13 +11,13 @@ export class InventoryPage extends BasePage {
   }
 
   async checkInventoryDisplayedItems(): Promise<void> {
-    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
     await expect(allProducts).toHaveCount(6);
 
     for (const product of await allProducts.all()) {
-      await expect(product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName)).toBeVisible();
-      await expect(product.getByTestId(SELECTORS.inventory.lbl_inventoryItemDescription)).toBeVisible();
-      await expect(product.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice)).toBeVisible();
+      await expect(product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName)).toBeVisible();
+      await expect(product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemDescription)).toBeVisible();
+      await expect(product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemPrice)).toBeVisible();
       await expect(product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }),).toBeVisible();
       await expect(product.getByRole("img")).toHaveAttribute("src", /.+/);
     }
@@ -34,7 +34,7 @@ export class InventoryPage extends BasePage {
 
     await expect(this.page.getByTestId(SELECTORS.inventory.dropdown_sort)).toHaveValue(SORT_OPTIONS.NAME_ASC);
 
-    const productNames = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).allTextContents();
+    const productNames = await this.page.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).allTextContents();
     const sortedNames = [...productNames].sort((a, b) => a.localeCompare(b));
 
     expect(productNames).toEqual(sortedNames);
@@ -45,7 +45,7 @@ export class InventoryPage extends BasePage {
   }
 
   async checkSortIsNameDescending(): Promise<void> {
-    const productNames = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).allTextContents();
+    const productNames = await this.page.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).allTextContents();
     const sortedNames = [...productNames].sort((a, b) => b.localeCompare(a));
 
     expect(productNames).toEqual(sortedNames);
@@ -59,7 +59,7 @@ export class InventoryPage extends BasePage {
   }
 
   private async getProductPrices(): Promise<number[]> {
-    const priceTexts = await this.page.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).allTextContents();
+    const priceTexts = await this.page.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemPrice).allTextContents();
     return priceTexts.map((price) => Number(price.replace("$", "")));
   }
 
@@ -70,26 +70,25 @@ export class InventoryPage extends BasePage {
     expect(prices).toEqual(sortedPrices);
   }
 
-  private getProductByName(productName: string): Locator {
-    return this.page
-      .getByTestId(SELECTORS.inventory.div_inventoryItem)
-      .filter({ has: this.page.getByText(productName, { exact: true }) });
-  }
-
   async getProductInfo(productName: string): Promise<ProductInfo> {
     const product = this.getProductByName(productName);
 
     return {
-      name: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).textContent()) ?? "",
-      description: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemDescription).textContent()) ?? "",
-      price: (await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).textContent()) ?? "",
+      name: (await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).textContent()) ?? "",
+      description: (await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemDescription).textContent()) ?? "",
+      price: (await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemPrice).textContent()) ?? "",
       imageSrc: (await product.getByRole("img").getAttribute("src")) ?? "",
     };
   }
 
   async clickProductName(productName: string): Promise<void> {
     const product = this.getProductByName(productName);
-    await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).click();
+    await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).click();
+  }
+
+  async clickProductImage(productName: string): Promise<void> {
+    const product = this.getProductByName(productName);
+    await product.getByRole("img").click();
   }
 
   async addProductToCartByName(productName: string): Promise<void> {
@@ -122,7 +121,7 @@ export class InventoryPage extends BasePage {
   }
 
   async addAllProductsToCartAndCheckCartBadge(): Promise<void> {
-    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
     await expect(allProducts).toHaveCount(6);
 
     for (const product of await allProducts.all()) {
@@ -134,7 +133,7 @@ export class InventoryPage extends BasePage {
   }
 
   async checkAllProductsShowRemoveButton(): Promise<void> {
-    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
 
     for (const product of await allProducts.all()) {
       await expect(product.getByRole("button", { name: SELECTORS.inventory.role_removeButton })).toBeVisible();
@@ -147,7 +146,7 @@ export class InventoryPage extends BasePage {
   }
 
   async checkAllProductImagesAreValidAndUnique(): Promise<void> {
-    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
     const imageSrcs: string[] = [];
 
     for (const product of await allProducts.all()) {
@@ -171,16 +170,20 @@ export class InventoryPage extends BasePage {
   }
 
   async checkPricesForAllProducts(): Promise<void> {
-    const allProducts = this.page.getByTestId(SELECTORS.inventory.div_inventoryItem);
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
 
     for (const product of await allProducts.all()) {
-      const productName = await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemName).textContent();
-      const productPrice = await product.getByTestId(SELECTORS.inventory.lbl_inventoryItemPrice).textContent();
+      const productName = await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).textContent();
+      const productPrice = await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemPrice).textContent();
 
       const expectedPrice = PRODUCT_CATALOG.get(productName ?? "");
       expect(expectedPrice, `"${productName}" no está en PRODUCT_CATALOG`).toBeDefined();
       expect(productPrice).toBe(`$${expectedPrice}`);
     }
+  }
+
+  async clickOnShoppingCartIcon(): Promise<void> {
+    await this.page.getByTestId(SELECTORS.inventory.btn_shoppingCart).click();
   }
   
 }

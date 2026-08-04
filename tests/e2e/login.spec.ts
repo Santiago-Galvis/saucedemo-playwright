@@ -1,6 +1,5 @@
 import { test } from "../../src/fixtures";
-import { PASSWORD, USERS } from "../../src/data/users";
-import { ROUTES } from "../../src/constants";
+import { PASSWORD, USERS } from "../../src/data/users";import { ROUTES, TIMEOUTS } from "../../src/constants";
 
 /**
  * Cubre los 5 casos definidos como prioritarios en TEST_CASES.md
@@ -109,6 +108,8 @@ test.describe("Login", () => {
   });
 
   test("13. should log in only the users allowed to log in", async ({ loginPage }) => {
+    test.setTimeout(TIMEOUTS.LONG);
+
     for (const { username, canLogin, expectedError } of USERS) {
       await loginPage.goto();
       await loginPage.  login(username, PASSWORD);
