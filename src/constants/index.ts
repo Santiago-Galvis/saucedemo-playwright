@@ -71,6 +71,7 @@ export const SELECTORS = {
   },
   cart : {
     input_quantityProduct: "item-quantity",
+    btn_checkout: "checkout",
   },
   global: {
     icon_cartBadge: "shopping-cart-badge",

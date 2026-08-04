@@ -1,9 +1,13 @@
 import { expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { SELECTORS } from "../constants";
+import { ROUTES, SELECTORS } from "../constants";
 import type { ProductInfo } from "../types";
 
 export class CartPage extends BasePage {
+  async goToCart(): Promise<void> {
+    await this.navigate(ROUTES.CART);
+  }
+
   async checkMatchesProductOnCart(expected: ProductInfo): Promise<void> {
     await expect(this.page.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName)).toHaveText(expected.name);
     await expect(this.page.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemDescription)).toHaveText(expected.description);
@@ -19,5 +23,18 @@ export class CartPage extends BasePage {
   async addProductToCartByName(productName: string): Promise<void> {
     const product = this.getProductByName(productName);
     await product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }).click();
+  }
+
+  async checkZeroItemsInCart(): Promise<void> {
+    const totalProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
+    await expect(totalProducts).toHaveCount(0);
+  }
+
+  async checkCheckoutButtonVisible(): Promise<void> {
+    await expect(this.page.getByTestId(SELECTORS.cart.btn_checkout)).toBeVisible();
+  }
+
+  async clickOnCheckoutButton(): Promise<void> {
+    await this.page.getByTestId(SELECTORS.cart.btn_checkout).click();
   }
 }

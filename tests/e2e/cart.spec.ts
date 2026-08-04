@@ -14,6 +14,12 @@ test.describe("Cart", () => {
     await cartPage.checkItemAmountOnCartByName("Sauce Labs Bike Light", 1);
   });
 
+  test("2. should show an empty cart with the Checkout button still visible", async ({ inventoryPage, cartPage,}) => {
+    await cartPage.goToCart();
+    await cartPage.checkZeroItemsInCart();
+    await cartPage.checkCheckoutButtonVisible();
+  });
+
   
 
 });
