@@ -81,16 +81,6 @@ export class InventoryPage extends BasePage {
     };
   }
 
-  async clickProductName(productName: string): Promise<void> {
-    const product = this.getProductByName(productName);
-    await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).click();
-  }
-
-  async clickProductImage(productName: string): Promise<void> {
-    const product = this.getProductByName(productName);
-    await product.getByRole("img").click();
-  }
-
   async addProductToCartByName(productName: string): Promise<void> {
     const product = this.getProductByName(productName);
     await product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }).click();
@@ -103,17 +93,6 @@ export class InventoryPage extends BasePage {
     await expect(removeButton).toBeVisible();
     await expect(removeButton).toHaveCSS("color", "rgb(226, 35, 26)");
     await expect(removeButton).toHaveCSS("border", "1px solid rgb(226, 35, 26)");
-  }
-
-  async getAndValidateCartItemCount(expectedCount: number): Promise<void> {
-    const cartBadge = this.page.getByTestId(SELECTORS.inventory.span_cartBadge);
-
-    if (expectedCount === 0) {
-      await expect(cartBadge).toBeHidden();
-      return;
-    }
-
-    await expect(cartBadge).toHaveText(expectedCount.toString());
   }
 
   async validateCartBadgeVisibility(expectedVisible: boolean): Promise<void> {

@@ -37,6 +37,16 @@ export abstract class BasePage {
     await this.getFirst(selector).click();
   }
 
+  async clickProductName(productName: string): Promise<void> {
+    const product = this.getProductByName(productName);
+    await product.getByTestId(SELECTORS.sharedItemFields.lbl_inventoryItemName).click();
+  }
+
+  async clickProductImage(productName: string): Promise<void> {
+    const product = this.getProductByName(productName);
+    await product.getByRole("img").click();
+  }
+
   async waitForVisible(locator: Locator, timeout: number = TIMEOUTS.DEFAULT): Promise<void> {
     await locator.waitFor({ state: "visible", timeout });
   }
@@ -70,5 +80,24 @@ export abstract class BasePage {
 
   async checkForRedirection(expectedUrl: string | RegExp): Promise<void> {
     await expect(this.page, `Se esperaba redirección a "${expectedUrl}"`).toHaveURL(expectedUrl);
+  }
+
+  async getAndValidateCartItemCount(expectedCount: number): Promise<void> {
+    const cartBadge = this.page.getByTestId(SELECTORS.inventory.span_cartBadge);
+
+    if (expectedCount === 0) {
+      await expect(cartBadge).toBeHidden();
+      return;
+    }
+
+    await expect(cartBadge).toHaveText(expectedCount.toString());
+  }
+
+  async clickContinueShoppingButton(): Promise<void> {
+    await this.page.getByTestId(SELECTORS.cart.btn_continueShopping).click();
+  }
+
+  async clickCheckoutButton(): Promise<void> {
+    await this.page.getByTestId(SELECTORS.cart.btn_checkout).click();
   }
 }

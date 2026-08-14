@@ -25,6 +25,19 @@ export class CartPage extends BasePage {
     await product.getByRole("button", { name: SELECTORS.inventory.role_addToCartButton }).click();
   }
 
+  async removeProductFromCartByName(productName: string): Promise<void> {
+    const product = this.getProductByName(productName);
+    await product.getByRole("button", { name: SELECTORS.inventory.role_removeButton }).click();
+  }
+
+  async removeAllProductsFromCart(): Promise<void> {
+    const removeButton = this.page.getByRole("button", { name: SELECTORS.inventory.role_removeButton });
+    
+    while (await removeButton.count() > 0) {
+      await removeButton.first().click();
+    }
+  }
+
   async checkZeroItemsInCart(): Promise<void> {
     const totalProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
     await expect(totalProducts).toHaveCount(0);
