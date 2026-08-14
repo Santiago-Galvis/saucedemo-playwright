@@ -68,4 +68,13 @@ test.describe("Cart", () => {
     await cartPage.validateQtyOneForAllProductsInCart();
   });
 
+  test("9, should preserve cart contents after reloading while logged in", async ({ inventoryPage, cartPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
+    await inventoryPage.clickOnShoppingCartIcon();
+    await cartPage.reload();
+    await cartPage.validateQtyOneForAllProductsInCart();
+    await cartPage.getAndValidateCartItemCount(6);
+  });
+
 });
