@@ -97,10 +97,25 @@ Los tests pueden correr con hasta `--workers=16` en paralelo (ej.
 
 ## BasePage — qué hay y qué falta a propósito
 
-`BasePage.ts` arranca mínimo (`navigate`, `getFirst`/`clickFirst`, `waitForVisible`,
-`isVisible`, `getCookie`, `expectVisibleText`) porque solo existe `LoginPage` por ahora.
-A medida que construyas InventoryPage/CartPage/CheckoutPage vas a necesitar (patrones
-que sí sirvieron en Avianca — impleméntalos ahí cuando aparezca el caso real, no antes):
+`BasePage.ts` ya no es mínimo: además de lo original (`navigate`, `getFirst`/`clickFirst`,
+`waitForVisible`, `isVisible`, `getCookie`, `expectVisibleText`), acumula helpers que se
+repiten en varias páginas — `getProductByName`, `clickProductName`, `clickProductImage`,
+`getAndValidateCartItemCount` — porque el card de producto (`data-test="inventory-item"`
+y sus hijos) es el mismo HTML en inventory, product detail y cart. Regla: si un
+selector/acción de card aparece en 2+ Page Objects, sube a `BasePage` (namespace
+`SELECTORS.sharedItemFields` en vez de `SELECTORS.inventory`); si es exclusivo de una
+página, se queda en su propia clase.
+
+**Iterar sobre listas de cards que pueden mutar (ej. "Remove all" en cart):** `.all()`
+congela un array de `Locator[]` atado a índices de posición (`nth(0)`, `nth(1)`...). Si
+cada acción del loop elimina un elemento del DOM (como el Remove en cart, a diferencia
+de inventory donde el card se queda y solo cambia el botón), los índices se desincronizan
+y termina en timeout buscando un `nth(n)` que ya no existe. Fix: no capturés `.all()` de
+antemano — resolvé `.first()` de nuevo en cada vuelta (`while (await locator.count() > 0)`
+o `for (let i = 0; i < count; i++) { await locator.first().click(); }`).
+
+A medida que construyas CheckoutPage vas a necesitar más (patrones que sí sirvieron en
+Avianca — impleméntalos ahí cuando aparezca el caso real, no antes):
 
 - **`clickRandomFrom(selector)`** — útil para "agregar un producto random al carrito"
 - **`dispatchRandomClick(selector)`** — solo si algún botón no responde a click normal
@@ -160,6 +175,11 @@ Catálogo completo de matchers, variantes y ejemplos → `docs/PLAYWRIGHT_REFERE
 - **Timeout de `performance_glitch_user` no sube el timeout global** — pasar timeout
   explícito solo en esa assertion (`TIMEOUTS.GLITCH_USER`), igual que Avianca solo subía
   a `TIMEOUTS.LONG` en pasos puntuales, no en todo el config
+- **Test data-driven con loop largo (ej. LOGIN-13, los 6 usuarios) que excede el timeout
+  default:** usar `test.setTimeout(TIMEOUTS.LONG)` como primera línea del test, no tocar
+  el timeout global ni el de un solo assert — es el mismo principio que el punto anterior
+  pero a nivel test completo en vez de a nivel assertion, porque acá el costo se acumula
+  sobre varias iteraciones, no en un solo paso
 
 ## Forma de proponer soluciones
 
@@ -171,10 +191,10 @@ No complacer si algo es subóptimo.
 
 | Página | Estado | Notas |
 |---|---|---|
-| LoginPage | ✅ | 5 tests base — ver `tests/e2e/login.spec.ts` |
-| InventoryPage | ⏳ Pendiente | El usuario la construye practicando — ver TEST_CASES.md |
-| ProductDetailPage | ⏳ Pendiente | — |
-| CartPage | ⏳ Pendiente | — |
+| LoginPage | ✅ | 15 tests — ver `tests/e2e/login.spec.ts` |
+| InventoryPage | ✅ | ver `tests/e2e/inventory.spec.ts` |
+| ProductDetailPage | ✅ | 7 tests — ver `tests/e2e/product-detail.spec.ts` |
+| CartPage | ✅ | ver `tests/e2e/cart.spec.ts` |
 | CheckoutPage (steps 1/2/complete) | ⏳ Pendiente | — |
 
 Ver `TEST_CASES.md` para el catálogo completo de casos a automatizar, de básico a complejo.

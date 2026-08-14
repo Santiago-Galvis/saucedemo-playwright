@@ -32,10 +32,23 @@ export class CartPage extends BasePage {
 
   async removeAllProductsFromCart(): Promise<void> {
     const removeButton = this.page.getByRole("button", { name: SELECTORS.inventory.role_removeButton });
-    
+
     while (await removeButton.count() > 0) {
       await removeButton.first().click();
     }
+  }
+
+  async validateQtyOneForAllProductsInCart(): Promise<void> {
+    const allProducts = this.page.getByTestId(SELECTORS.sharedItemFields.div_inventoryItem);
+
+    for (const product of await allProducts.all()) {
+      const productQuantity = product.getByTestId(SELECTORS.cart.input_quantityProduct);
+      await expect(productQuantity).toHaveText("1");
+    }
+  }
+
+  async checkContinueShoppingButtonVisible(): Promise<void> {
+    await expect(this.page.getByTestId(SELECTORS.cart.btn_continueShopping)).toBeVisible();
   }
 
   async checkZeroItemsInCart(): Promise<void> {

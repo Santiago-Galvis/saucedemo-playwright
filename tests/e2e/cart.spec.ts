@@ -61,4 +61,11 @@ test.describe("Cart", () => {
     await productDetailPage.checkForRedirection(/inventory-item\.html/);
   });
 
+  test("8. should show quantity 1 for each added item in the cart", async ({ inventoryPage, cartPage }) => {
+    await inventoryPage.goToInventory();
+    await inventoryPage.addAllProductsToCartAndCheckCartBadge();
+    await inventoryPage.clickOnShoppingCartIcon();
+    await cartPage.validateQtyOneForAllProductsInCart();
+  });
+
 });
