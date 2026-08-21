@@ -115,6 +115,49 @@ importante si necesitás conservar el original para comparar contra la copia ord
 
 ---
 
+## Destructuring de parámetros (objeto → variables sueltas)
+
+Cuando una función recibe un objeto tipado, se puede "desempacar" directo en la firma
+en vez de recibirlo con un nombre y acceder a sus props con `.` dentro del cuerpo.
+
+```typescript
+// Con destructuring — cada prop queda disponible como variable suelta
+async fillCheckoutStepOneForm({ firstName, lastName, postalCode }: CheckoutInfo): Promise<void> {
+  await this.page.getByTestId("firstName").fill(firstName);
+  await this.page.getByTestId("lastName").fill(lastName);
+  await this.page.getByTestId("postalCode").fill(postalCode);
+}
+
+// Equivalente sin destructuring
+async fillCheckoutStepOneForm(info: CheckoutInfo): Promise<void> {
+  await this.page.getByTestId("firstName").fill(info.firstName);
+  await this.page.getByTestId("lastName").fill(info.lastName);
+  await this.page.getByTestId("postalCode").fill(info.postalCode);
+}
+```
+
+El `: CheckoutInfo` sigue tipando el objeto completo — el destructuring es pura sintaxis
+para no repetir `info.` en cada línea, no cambia el tipo del parámetro ni cómo se llama
+la función (`fillCheckoutStepOneForm(buildCheckoutInfo())` sigue pasando el objeto entero).
+
+Otras variantes útiles del mismo patrón:
+```typescript
+// Renombrar al desempacar (útil si el nombre de la prop choca con algo del scope)
+function foo({ firstName: nombre }: CheckoutInfo) { ... }
+
+// Default si la prop puede venir undefined (con Partial<T> o prop opcional)
+function foo({ postalCode = "00000" }: Partial<CheckoutInfo>) { ... }
+
+// Destructuring anidado (objeto dentro de objeto)
+function foo({ address: { city } }: { address: { city: string } }) { ... }
+```
+
+Ejemplo real: `CheckoutPage.fillCheckoutStepOneForm()` (`src/pages/CheckoutPage.ts`) +
+`buildCheckoutInfo()` (`src/data/checkout.ts`, genera `CheckoutInfo` con faker o con
+overrides puntuales).
+
+---
+
 ## Conversión de tipos en TS/JS
 
 No existe `.toNumber()` como método — la conversión es con funciones globales:
@@ -170,6 +213,33 @@ Los que vamos a usar en este proyecto — todos web-first (reintentan hasta
 
 `toEqual`, `toBe`, `toContain` sobre un valor ya extraído — síncronos, sin retry (ver
 tabla de arriba).
+
+---
+
+### Atributo HTML vs propiedad CSS computada — no confundir
+
+Son dos cosas distintas del DOM, con APIs distintas:
+
+| | Atributo HTML | CSS computado |
+|---|---|---|
+| Ejemplos | `class`, `id`, `data-test`, `src`, `name` | `color`, `border-bottom-color`, `background-color` |
+| Cómo se lee | `getAttribute("attr")` | `getComputedStyle(el).getPropertyValue("prop")` |
+| Matcher web-first | `toHaveAttribute` | `toHaveCSS` |
+| Helper en `BasePage` | `expectAttribute()` | `expectCSS()` |
+
+`getAttribute("border-bottom-color")` devuelve `null` — ese string no es un atributo
+HTML, aunque el elemento sí tenga ese borde renderizado en pantalla (via stylesheet,
+clase, herencia, etc.). Usar `expectCSS()` para estilos, `expectAttribute()` solo para
+lo que está escrito literalmente en el markup. Útil para USER-10 (`visual_user`,
+comparar estilos rotos — ver `TEST_CASES.md`).
+
+```typescript
+// ❌ getAttribute no resuelve CSS
+await basePage.expectAttribute(locator, "border-bottom-color", "rgb(226, 35, 26)"); // siempre null
+
+// ✅ CSS computado
+await basePage.expectCSS(locator, "border-bottom-color", "rgb(226, 35, 26)");
+```
 
 ---
 

@@ -60,11 +60,6 @@ export abstract class BasePage {
     return cookies.find((c) => c.name === name)?.value ?? null;
   }
 
-  /** Assertion bloqueante reutilizable: falla si el locator con ese texto no aparece. */
-  async expectVisibleText(locator: Locator, text: string): Promise<void> {
-    await expect(locator, `Se esperaba el texto "${text}"`).toHaveText(text);
-  }
-
   /** Assertion bloqueante reutilizable: falla si el atributo del locator no tiene el valor esperado. */
   async expectAttribute(locator: Locator, attribute: string, expected: string): Promise<void> {
     const actual = await locator.getAttribute(attribute);
@@ -74,12 +69,26 @@ export abstract class BasePage {
     );
   }
 
+  /**
+   * Análogo a expectAttribute() pero para propiedades CSS computadas (ej.
+   * "border-bottom-color"), no atributos HTML — getAttribute() no las resuelve.
+   * Formato esperado: el que devuelve getComputedStyle (rgb, no hex — ver
+   * docs/PLAYWRIGHT_REFERENCE.md, sección toHaveCSS).
+   */
+  async expectCSS(locator: Locator, property: string, expected: string): Promise<void> {
+    const actual = await locator.evaluate((el, prop) => getComputedStyle(el).getPropertyValue(prop), property);
+    await expect(locator, `Se esperaba CSS "${property}"="${expected}" pero era "${actual}"`).toHaveCSS(
+      property,
+      expected,
+    );
+  }
+
   async reload(): Promise<void> {
     await this.page.reload();
   }
 
   async checkForRedirection(expectedUrl: string | RegExp): Promise<void> {
-    await expect(this.page, `Se esperaba redirección a "${expectedUrl}"`).toHaveURL(expectedUrl);
+    await expect(this.page).toHaveURL(expectedUrl);
   }
 
   async getAndValidateCartItemCount(expectedCount: number): Promise<void> {
@@ -95,9 +104,5 @@ export abstract class BasePage {
 
   async clickContinueShoppingButton(): Promise<void> {
     await this.page.getByTestId(SELECTORS.cart.btn_continueShopping).click();
-  }
-
-  async clickCheckoutButton(): Promise<void> {
-    await this.page.getByTestId(SELECTORS.cart.btn_checkout).click();
   }
 }

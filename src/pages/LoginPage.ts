@@ -30,14 +30,11 @@ export class LoginPage extends BasePage {
   }
 
   async expectError(message: string): Promise<void> {
-    await expect(this.page.getByTestId(SELECTORS.login.msg_error), `Error esperado: "${message}"`).toHaveText(message);
+    await expect(this.page.getByTestId(SELECTORS.login.msg_error)).toHaveText(message);
   }
 
   async expectDismissButton(dismiss?: boolean): Promise<void> {
-    await expect(
-      this.page.getByTestId(SELECTORS.login.btn_closeError),
-      "Botón de cerrar error debería estar visible",
-    ).toBeVisible();
+    await expect(this.page.getByTestId(SELECTORS.login.btn_closeError)).toBeVisible();
 
     if (dismiss) {
       await this.dismissError();

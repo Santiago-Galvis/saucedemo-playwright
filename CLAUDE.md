@@ -141,6 +141,12 @@ Idénticas a Avianca — usar siempre la API idiomática de Playwright, nunca `i
 // ✅ Assertion bloqueante (invariante que siempre debe cumplirse)
 await expect(locator, "mensaje").toHaveText("...");
 
+// ❌ Mensaje redundante — Playwright ya muestra el valor esperado en el error del matcher
+await expect(locator, `Se esperaba el texto "${text}"`).toHaveText(text);
+
+// ✅ Sin mensaje custom cuando no hay nada que agregar sobre el output default
+await expect(locator).toHaveText(text);
+
 // ✅ Comportamiento conocido pero "raro" de un usuario especial (problem_user, error_user)
 // no bloquea el test, pero queda visible en el reporte
 if (actualBehavior !== expectedBehavior) {
@@ -151,6 +157,15 @@ if (actualBehavior !== expectedBehavior) {
 Regla general: `expect` para el flujo feliz (standard_user); `test.info().annotations`
 para documentar bugs conocidos de los usuarios especiales — no marques el test como
 fallido por un bug que el sitio tiene a propósito, documéntalo.
+
+**Mensaje custom en `expect()` — solo si agrega algo que el matcher no muestra ya.**
+Playwright reporta "Expected"/"Received" automáticamente en cualquier falla; un mensaje
+que solo repite el valor esperado (`` `Se esperaba "${x}"` ``) es ruido. Sí vale la pena
+cuando el mensaje aporta un **valor actual obtenido aparte** (`BasePage.expectAttribute()`
+/ `expectCSS()`, que hacen `getAttribute`/`getComputedStyle` antes del `expect`) o
+**contexto de negocio** que el matcher no puede inferir (`` `"${productName}" no está en
+PRODUCT_CATALOG` `` en `InventoryPage`). Si el mensaje solo parafrasea el argumento que ya
+le estás pasando al matcher, sacarlo.
 
 ### Web-first assertions (auto-retry)
 

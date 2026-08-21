@@ -74,6 +74,15 @@ export const SELECTORS = {
     btn_checkout: "checkout",
     btn_continueShopping: "continue-shopping",
   },
+  checkoutsStepOne : {
+    input_firstName: "firstName",
+    input_lastName: "lastName",
+    input_postalCode: "postalCode",
+    btn_continue: "continue",
+    btn_cancel: "cancel",
+    btn_dismissErrorButton: "error-button",
+    msg_error: "error",
+  },
   global: {
     icon_cartBadge: "shopping-cart-badge",
     btn_cart: "shopping-cart-link",

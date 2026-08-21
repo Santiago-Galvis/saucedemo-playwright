@@ -121,6 +121,21 @@ Después de cada cambio importante:
 
 ---
 
+### Atajos de editor útiles al reordenar tests/steps
+
+En VS Code (macOS), reordenar bloques de código a mano (ej. mover un `test()` entero
+para agruparlo con otros en un `describe`) es más rápido con teclado que cortar/pegar:
+
+- **`Option + ↑` / `Option + ↓`** — mueve la línea (o selección) actual una posición
+  arriba/abajo, sin duplicarla.
+- **`Shift + Option + ↑` / `Shift + Option + ↓`** — **duplica** la línea (o selección)
+  arriba/abajo. Fácil de confundir con el anterior porque comparten las mismas flechas —
+  si el objetivo era mover y terminaste con contenido repetido (como el test duplicado
+  que generó el error `duplicate test title` en `checkout.spec.ts`), fue este atajo en
+  vez de `Option + ↑/↓`.
+
+---
+
 ### Corre los tests, no confíes solo en que "debería andar"
 Después de implementar algo, pide explícitamente:
 > "Corre `tests/e2e/inventory.spec.ts` y confirmá que pasa en los 3 browsers"
