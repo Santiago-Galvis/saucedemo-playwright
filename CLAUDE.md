@@ -210,7 +210,7 @@ No complacer si algo es subóptimo.
 | InventoryPage | ✅ | ver `tests/e2e/inventory.spec.ts` |
 | ProductDetailPage | ✅ | 7 tests — ver `tests/e2e/product-detail.spec.ts` |
 | CartPage | ✅ | ver `tests/e2e/cart.spec.ts` |
-| CheckoutPage (steps 1/2/complete) | ⏳ Pendiente | — |
+| CheckoutPage (steps 1/2/complete) | ✅ | 7 tests — ver `tests/e2e/checkout.spec.ts` |
 
 Ver `TEST_CASES.md` para el catálogo completo de casos a automatizar, de básico a complejo.
 
