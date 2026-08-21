@@ -49,7 +49,7 @@ test.describe("Cart", () => {
     await inventoryPage.goToInventory();
     await inventoryPage.addProductToCartByName("Test.allTheThings() T-Shirt (Red)");
     await inventoryPage.clickOnShoppingCartIcon();
-    await cartPage.clickCheckoutButton();
+    await cartPage.clickOnCheckoutButton();
     await cartPage.checkForRedirection(/checkout-step-one\.html/);
   });
 

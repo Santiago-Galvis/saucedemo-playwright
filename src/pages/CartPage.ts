@@ -63,8 +63,4 @@ export class CartPage extends BasePage {
   async clickOnCheckoutButton(): Promise<void> {
     await this.page.getByTestId(SELECTORS.cart.btn_checkout).click();
   }
-
-  async clickCheckoutButton(): Promise<void> {
-    await this.page.getByTestId(SELECTORS.cart.btn_checkout).click();
-  }
 }
